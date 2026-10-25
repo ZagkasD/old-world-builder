@@ -61,6 +61,16 @@ export const getPointsPerModel = (unit) => {
   return modelPoints;
 };
 
+export const getUnitPointsMessageId = (points) => {
+  if (points === 0) {
+    return "app.free";
+  }
+  if (points === 1) {
+    return "app.point";
+  }
+  return "app.points";
+};
+
 export const getUnitPoints = (unit, settings) => {
   const detachmentActive =
     unit?.options?.length > 0 &&

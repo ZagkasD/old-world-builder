@@ -19,7 +19,7 @@ import { getRandomId } from "../../utils/id";
 import { useLanguage } from "../../utils/useLanguage";
 import { getArmyData } from "../../utils/army";
 import { fetcher } from "../../utils/fetcher";
-import { getUnitPoints } from "../../utils/points";
+import { getUnitPoints, getUnitPointsMessageId } from "../../utils/points";
 import { getGameSystems, getCustomDatasetData } from "../../utils/game-systems";
 
 import { nameMap } from "../magic";
@@ -65,50 +65,51 @@ export const Add = ({ isMobile }) => {
     dispatch(addUnit({ listId, type, unit: newUnit }));
     setRedirect(newUnit.id);
   };
-  const getUnit = ({ unit, ally, unitType, magicItemsArmy, deleteButton }) => (
-    <li key={unit.id} className="list">
-      <button
-        className={classNames(
-          "list__inner add__list-inner",
-          deleteButton && "list__inner--delete",
-        )}
-        onClick={() => handleAdd(unit, ally, unitType, magicItemsArmy)}
-      >
-        <span className="add__name">
-          {unit.strength
-            ? `${unit.strength} `
-            : unit.minimum
-            ? `${unit.minimum} `
-            : null}
-          <b>{getUnitName({ unit, language })}</b>
-        </span>
-        <i className="unit__points">{`${getUnitPoints(unit, {
-          ally,
-        })} ${intl.formatMessage({
-          id: "app.points",
-        })}`}</i>
-      </button>
-      <RuleWithIcon name={unit.name_en} isDark className="add__rules-icon" />
-      {deleteButton && (
-        <Button
-          icon="delete"
-          type="text"
-          color="dark"
-          className="add__delete"
-          label={intl.formatMessage({ id: "misc.delete" })}
-          onClick={() => {
-            const newSettings = {
-              ...settings,
-              favorites: settings.favorites.filter((fav) => fav.id !== unit.id),
-            };
+  const getUnit = ({ unit, ally, unitType, magicItemsArmy, deleteButton }) => {
+    const points = getUnitPoints(unit, { ally });
+    return (
+      <li key={unit.id} className="list">
+        <button
+          className={classNames(
+            "list__inner add__list-inner",
+            deleteButton && "list__inner--delete",
+          )}
+          onClick={() => handleAdd(unit, ally, unitType, magicItemsArmy)}
+        >
+          <span className="add__name">
+            {unit.strength
+              ? `${unit.strength} `
+              : unit.minimum
+              ? `${unit.minimum} `
+              : null}
+            <b>{getUnitName({ unit, language })}</b>
+          </span>
+          <i className="unit__points">{`${points} ${intl.formatMessage({
+            id: getUnitPointsMessageId(points),
+          })}`}</i>
+        </button>
+        <RuleWithIcon name={unit.name_en} isDark className="add__rules-icon" />
+        {deleteButton && (
+          <Button
+            icon="delete"
+            type="text"
+            color="dark"
+            className="add__delete"
+            label={intl.formatMessage({ id: "misc.delete" })}
+            onClick={() => {
+              const newSettings = {
+                ...settings,
+                favorites: settings.favorites.filter((fav) => fav.id !== unit.id),
+              };
 
-            localStorage.setItem("owb.settings", JSON.stringify(newSettings));
-            dispatch(updateSetting({ favorites: newSettings.favorites }));
-          }}
-        />
-      )}
-    </li>
-  );
+              localStorage.setItem("owb.settings", JSON.stringify(newSettings));
+              dispatch(updateSetting({ favorites: newSettings.favorites }));
+            }}
+          />
+        )}
+      </li>
+    );
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
